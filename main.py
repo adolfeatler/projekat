@@ -6,7 +6,30 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtPrintSupport import *
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QTextCharFormat
+from PyQt5.QtCore import Qt, QUrl
 
+#hyperlink
+class hyperlinkwindow(QDialog):
+    def __init__ (self, text_edit):
+        super().__init__()
+        self.textedit = text_edit
+        self.setWindowTitle("Link")
+        layout = QVBoxLayout()
+        self.address_input = QLineEdit()
+        layout.addWidget(self.address_input)
+        self.ok_button = QPushButton("Ok")
+        self.ok_button.clicked.connect(self.add_hyperlink)
+        layout.addWidget(self.ok_button)
+
+        self.setLayout(layout)
+    def add_hyperlink(self):
+        address = self.address_input.text()
+        selected_text = self.textedit.textCursor().selectedText()
+        hyperlink = f'<a href="{address}">{selected_text}</a>'
+        self.textedit.insertHtml(hyperlink) 
+        print ( self.textedit.toHtml())        
+        self.close()
 #pozivanje 
 class RTE(QMainWindow):
     def __init__(self):
@@ -25,6 +48,7 @@ class RTE(QMainWindow):
 
     def create_tool_bar(self):
         toolbar = QToolBar()
+
 
         save_action = QAction(QIcon("save.png"), "Save", self) 
         save_action.triggered.connect(self.saveFile) 
@@ -50,7 +74,8 @@ class RTE(QMainWindow):
         pasteBtn = QAction(QIcon("paste.png"), "paste", self)
         pasteBtn.triggered.connect(self.editor.paste)
         toolbar.addAction(pasteBtn)
-  
+
+
         self.fontBox = QComboBox(self)
         list = QFontDatabase().families()
         self.fontBox.addItems(list)
@@ -92,8 +117,18 @@ class RTE(QMainWindow):
         colorbtn.triggered.connect(self.setFontColor)
         toolbar.addAction(colorbtn)
         
+        linkbtn = QAction(QIcon("link.png"), "linkset", self)
+        linkbtn.triggered.connect(self.open_hyperlink_window)
+        toolbar.addAction(linkbtn)
 
         self.addToolBar(toolbar)
+
+    def open_hyperlink_window(self):
+        self.selected_text = self.editor.textCursor().selectedText()
+        if(self.selected_text):
+            self.hyperlink_window = hyperlinkwindow(self.editor)
+            self.hyperlink_window.exec_()
+
 
     def setFontSize(self):
         value = self.fontSizeBox.value()
@@ -111,11 +146,9 @@ class RTE(QMainWindow):
 
     def setFontColor(self):
         color = QColorDialog.getColor()
-        self.setStyleSheet(f'color: {color.name()};')
-        print("1")
-        textboxValue = self.textEdit.toPlainText()
-        print(textboxValue)
+        self.editor.setTextColor(color)
 
+    #podvlacenje
     def underlineText(self):
         state = self.editor.fontUnderline()
         self.editor.setFontUnderline(not(state))
@@ -134,7 +167,7 @@ class RTE(QMainWindow):
         print(self.path)
         if self.path == "":
             self.file_saveas()
-        text = self.editor.toPlainText()
+        text = self.editor.toHtml()
         try:
             with open(self.path, "w") as f:
                 f.write(text)
