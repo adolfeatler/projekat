@@ -157,7 +157,7 @@ class RTE(QMainWindow):
 
     def boldText(self):
         if  self.editor.fontWeight != QFont.Bold:
-              self.editor.setFontWeight(QFont.Bold)
+              self.editdgdgdgor.setFontWeight(QFont.Bold)
               return
         self.editor.setFontWeight(QFont.Normal)
 
