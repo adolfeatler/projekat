@@ -4,6 +4,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtPrintSupport import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCharFormat
@@ -117,9 +118,6 @@ class RTE(QMainWindow):
         colorbtn.triggered.connect(self.setFontColor)
         toolbar.addAction(colorbtn)
         
-        linkbtn = QAction(QIcon("link.png"), "linkset", self)
-        linkbtn.triggered.connect(self.open_hyperlink_window)
-        toolbar.addAction(linkbtn)
 
         self.addToolBar(toolbar)
 
@@ -185,8 +183,19 @@ class RTE(QMainWindow):
                 f.write(text)
                 self.update_title()
         except Exception as e:
-            print(e)        
+            print(e)
+            
+    def picture_insert(self):
         
+        self.acceptDrops()
+        self.label = QLabel(self)
+        self.pixmap = QPixmap("paste.png")
+        self.label.setPixmap(self.pixmap)
+        self.label.resize(self.pixmap.width(),
+                          self.pixmap.height())
+        self.show()
+        
+
 app = QApplication(sys.argv)
 window = RTE()
 window.show()
